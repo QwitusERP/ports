@@ -196,7 +196,7 @@ impl Lsof {
             .filter_map(|line| {
                 let mut line: Vec<&str> = line.split_ascii_whitespace().collect();
                 for i in 0..line.len() {
-                    if line[i].to_ascii_uppercase() == "(LISTEN)" {
+                    if line[i].eq_ignore_ascii_case("(LISTEN)") {
                         line.remove(i);
                         return Some(line);
                     }
