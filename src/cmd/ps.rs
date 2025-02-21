@@ -354,7 +354,9 @@ mod tests {
                 pc_mem: String::from("0.0"),
                 start: String::from("09:27"),
                 time: String::from("0:02"),
-                command: String::from("/usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 333 -container-ip 172.19.0.4 -container-port 22"),
+                command: String::from(
+                    "/usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 333 -container-ip 172.19.0.4 -container-port 22"
+                ),
                 _cannot_instantiate: std::marker::PhantomData,
             }
         );

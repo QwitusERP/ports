@@ -618,7 +618,9 @@ This is again not included
         process.pc_mem = String::from("0.0");
         process.start = String::from("09:27");
         process.time = String::from("0:02");
-        process.command =  String::from("/usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 333 -container-ip 172.19.0.4 -container-port 22");
+        process.command = String::from(
+            "/usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 333 -container-ip 172.19.0.4 -container-port 22",
+        );
 
         let mut other_process = ProcessInfo::new();
         other_process.user = String::from("colord");
