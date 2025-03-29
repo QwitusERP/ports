@@ -80,7 +80,7 @@ impl Ps {
     /// # Errors
     ///
     /// Errors if the `ps` executable is not found, or if the command
-    ///  exits with a non-zero exit code.
+    /// exits with a non-zero exit code.
     pub fn processes_info(pids: &[&String]) -> Result<Vec<ProcessInfo>, PsError> {
         let output = Self::ps()?;
         let mut output = output.lines();

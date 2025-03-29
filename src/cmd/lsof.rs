@@ -87,7 +87,7 @@ impl Lsof {
     /// # Errors
     ///
     /// Errors if the `lsof` executable is not found, or if the command
-    ///  exits with a non-zero exit code.
+    /// exits with a non-zero exit code.
     pub fn listening_ports() -> Result<Vec<ListeningPort>, LsofError> {
         let output = Self::lsof()?;
         let mut output = output.lines();

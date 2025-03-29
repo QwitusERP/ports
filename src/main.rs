@@ -60,17 +60,17 @@ impl Config {
                     config.help = true;
                     break;
                 }
-                "-v" | "--version" => {
+                "-V" | "--version" => {
                     config.version = true;
                     break;
                 }
-                "-vv" | "--verbose" => {
+                "-v" | "--verbose" => {
                     if config.mode >= Mode::Verbose {
                         continue; // Only increase verbosity.
                     }
                     config.mode = Mode::Verbose;
                 }
-                "-vvv" | "--very-verbose" => {
+                "-vv" | "--very-verbose" => {
                     if config.mode >= Mode::VeryVerbose {
                         continue; // Only increase verbosity.
                     }
@@ -152,9 +152,9 @@ Filters:
 
 Options:
   -h, --help            Show this message and exit.
-  -v, --version         Show the version and exit.
-  -vv, --verbose        Additional process info.
-  -vvv, --very-verbose  Even more extra info.
+  -V, --version         Show the version and exit.
+  -v, --verbose         Additional process info.
+  -vv, --very-verbose   Even more extra info.
 ",
         description = env!("CARGO_PKG_DESCRIPTION"),
         bin = env!("CARGO_BIN_NAME"),
@@ -163,7 +163,7 @@ Options:
 
 #[cfg(not(tarpaulin_include))]
 fn version() {
-    println!("{} {}", env!("CARGO_BIN_NAME"), env!("CARGO_PKG_VERSION"));
+    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 }
 
 #[cfg(not(tarpaulin_include))]
@@ -405,7 +405,7 @@ mod tests {
 
     #[test]
     fn config_version_short() {
-        let args = vec![String::new(), String::from("-v")].into_iter();
+        let args = vec![String::new(), String::from("-V")].into_iter();
         let config = Config::new(args).unwrap();
 
         assert!(config.version);
@@ -429,7 +429,7 @@ mod tests {
 
     #[test]
     fn config_verbose_short() {
-        let args = vec![String::new(), String::from("-vv")].into_iter();
+        let args = vec![String::new(), String::from("-v")].into_iter();
         let config = Config::new(args).unwrap();
 
         assert_eq!(config.mode, Mode::Verbose);
@@ -458,7 +458,7 @@ mod tests {
 
     #[test]
     fn config_very_verbose_short() {
-        let args = vec![String::new(), String::from("-vvv")].into_iter();
+        let args = vec![String::new(), String::from("-vv")].into_iter();
         let config = Config::new(args).unwrap();
 
         assert_eq!(config.mode, Mode::VeryVerbose);
