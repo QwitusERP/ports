@@ -11,13 +11,11 @@ what is running in the background.
 
 ```console
 $ ports 8000 50000-65535
-COMMAND      PID  USER     TYPE  NODE        HOST:PORT
-rapportd     449  Quentin  IPv4  TCP           *:61165
-rapportd     449  Quentin  IPv6  TCP           *:61165
-Python     22396  Quentin  IPv6  TCP            *:8000
-rustrover  30928  Quentin  IPv6  TCP   127.0.0.1:63342
-Transmiss  94671  Quentin  IPv4  TCP           *:51413
-Transmiss  94671  Quentin  IPv6  TCP           *:51413
+COMMAND      PID  USER           HOST:PORT
+rapportd     449  Quentin          *:61165
+Python     22396  Quentin           *:8000
+rustrover  30928  Quentin  127.0.0.1:63342
+Transmiss  94671  Quentin          *:51413
 ```
 
 <details><summary>With different levels of verbosity.</summary>
@@ -25,13 +23,13 @@ Transmiss  94671  Quentin  IPv6  TCP           *:51413
 
 ```console
 $ ports -v 8000 50000-65535
-COMMAND      PID  USER     TYPE  NODE        HOST:PORT  COMMAND
-rapportd     449  Quentin  IPv4  TCP           *:61165  /usr/libexec/rapportd
-rapportd     449  Quentin  IPv6  TCP           *:61165  /usr/libexec/rapportd
-Python     22396  Quentin  IPv6  TCP            *:8000  /usr/local/Cellar/python@3.12/3.12.3/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python -m http.server
-rustrover  30928  Quentin  IPv6  TCP   127.0.0.1:63342  /Applications/RustRover.app/Contents/MacOS/rustrover
-Transmiss  94671  Quentin  IPv4  TCP           *:51413  /Applications/Transmission.app/Contents/MacOS/Transmission
-Transmiss  94671  Quentin  IPv6  TCP           *:51413  /Applications/Transmission.app/Contents/MacOS/Transmission
+COMMAND      PID  USER     TYPE        HOST:PORT  COMMAND
+rapportd     449  Quentin  IPv4          *:61165  /usr/libexec/rapportd
+rapportd     449  Quentin  IPv6          *:61165  /usr/libexec/rapportd
+Python     22396  Quentin  IPv6           *:8000  /usr/local/Cellar/python@3.12/3.12.3/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python -m http.server
+rustrover  30928  Quentin  IPv6  127.0.0.1:63342  /Applications/RustRover.app/Contents/MacOS/rustrover
+Transmiss  94671  Quentin  IPv4          *:51413  /Applications/Transmission.app/Contents/MacOS/Transmission
+Transmiss  94671  Quentin  IPv6          *:51413  /Applications/Transmission.app/Contents/MacOS/Transmission
 ```
 
 ```console

@@ -210,27 +210,19 @@ fn filter_ports(listening_ports: &mut Vec<ListeningPort>, allowed: &[String]) {
 #[allow(clippy::needless_pass_by_value, clippy::unnecessary_wraps)]
 #[cfg(not(tarpaulin_include))]
 fn regular(listening_ports: Vec<ListeningPort>) -> Result<(), Box<dyn Error>> {
-    let listening_ports: Vec<Vec<&String>> = listening_ports
+    let mut listening_ports: Vec<Vec<&String>> = listening_ports
         .iter()
-        .map(|port| {
-            vec![
-                &port.command,
-                &port.pid,
-                &port.user,
-                &port.type_,
-                &port.node,
-                &port.name,
-            ]
-        })
+        .map(|port| vec![&port.command, &port.pid, &port.user, &port.name])
         .collect();
 
+    // Without type (IPv4/IPv6), some lines appear duplicated.
+    listening_ports.dedup();
+
     Table::new()
-        .headers(&["COMMAND", "PID", "USER", "TYPE", "NODE", "HOST:PORT"])
+        .headers(&["COMMAND", "PID", "USER", "HOST:PORT"])
         .alignments(&[
             fmt::Alignment::Left,
             fmt::Alignment::Right,
-            fmt::Alignment::Left,
-            fmt::Alignment::Left,
             fmt::Alignment::Left,
             fmt::Alignment::Right,
         ])
@@ -259,7 +251,6 @@ fn verbose(mut listening_ports: Vec<ListeningPort>) -> Result<(), Box<dyn Error>
                 &port.pid,
                 &port.user,
                 &port.type_,
-                &port.node,
                 &port.name,
                 port.pinfo.as_ref().map_or_else(|| &empty, |p| &p.command),
             ]
@@ -267,19 +258,10 @@ fn verbose(mut listening_ports: Vec<ListeningPort>) -> Result<(), Box<dyn Error>
         .collect();
 
     Table::new()
-        .headers(&[
-            "COMMAND",
-            "PID",
-            "USER",
-            "TYPE",
-            "NODE",
-            "HOST:PORT",
-            "COMMAND",
-        ])
+        .headers(&["COMMAND", "PID", "USER", "TYPE", "HOST:PORT", "COMMAND"])
         .alignments(&[
             fmt::Alignment::Left,
             fmt::Alignment::Right,
-            fmt::Alignment::Left,
             fmt::Alignment::Left,
             fmt::Alignment::Left,
             fmt::Alignment::Right,

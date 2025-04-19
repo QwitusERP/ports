@@ -187,20 +187,27 @@ impl Lsof {
     }
 
     /// Extract the rest of the output as detail lines.
+    ///
+    /// Details lines are split on whitespace to make columns.
+    ///
+    /// Only lines that contain `(LISTEN)` are kept, and the `(LISTEN)`
+    /// column is dropped from the output (we don't need it, and it
+    /// doesn't have a column header so it would mess up the structure).
     fn extract_detail_lines_of_listening_ports<'a>(output: &'a mut Lines) -> Vec<Vec<&'a str>> {
         output
-            // Probably overkill, but we case-insensitively remove the
-            // "(LISTEN)" property before collecting the line, as it
-            // doesn't have its own column (which would mess with the
-            // subsequent column mapping).
             .filter_map(|line| {
+                // To be kept, a line _must_ contain `(LISTEN)`
+                // (i.e., one of the columns `== "(LISTEN)"`).
                 let mut line: Vec<&str> = line.split_ascii_whitespace().collect();
                 for i in 0..line.len() {
                     if line[i].eq_ignore_ascii_case("(LISTEN)") {
+                        // This line contains `(LISTEN)`. Now remove the
+                        // column from the line, and return the line.
                         line.remove(i);
                         return Some(line);
                     }
                 }
+                // Not a listening port.
                 None
             })
             .collect()
