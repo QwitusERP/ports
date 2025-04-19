@@ -52,6 +52,29 @@ pub struct ListeningPort {
     _cannot_instantiate: std::marker::PhantomData<()>,
 }
 
+impl PartialOrd for ListeningPort {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for ListeningPort {
+    /// Sort by PID first, and then type (IPv4/IPv6).
+    ///
+    /// This enables easy line de-duplication in output, on top of
+    /// deterministic ordering.
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        debug_assert!(self.pid.parse::<u32>().is_ok(), "{}", self.pid);
+        debug_assert!(other.pid.parse::<u32>().is_ok(), "{}", other.pid);
+
+        self.pid
+            .parse::<u32>()
+            .expect("PID came in malformed")
+            .cmp(&other.pid.parse::<u32>().expect("PID came in malformed"))
+            .then(self.type_.cmp(&other.type_))
+    }
+}
+
 impl ListeningPort {
     #[must_use]
     pub fn new() -> Self {
@@ -95,10 +118,14 @@ impl Lsof {
         let header_columns = Self::extract_header_columns(&mut output)?;
         let detail_lines = Self::extract_detail_lines_of_listening_ports(&mut output);
 
-        Ok(Self::map_detail_values_to_properties(
-            &header_columns,
-            &detail_lines,
-        ))
+        let mut listening_ports =
+            Self::map_detail_values_to_properties(&header_columns, &detail_lines);
+
+        // Regular sort should be faster than unstable sort here because
+        // the output of `lsof` is already sorted by PID (see docs).
+        listening_ports.sort();
+
+        Ok(listening_ports)
     }
 
     #[cfg(not(tarpaulin_include))]
