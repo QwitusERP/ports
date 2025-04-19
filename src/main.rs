@@ -36,7 +36,9 @@ struct Config {
     help: bool,
     version: bool,
     mode: Mode,
-    filters: Vec<String>,
+    // List of ports that will be _retained_ in the output if non-empty.
+    // If the list is empty, there won't be any filtering.
+    port_filters: Vec<String>,
 }
 
 impl Default for Config {
@@ -45,7 +47,7 @@ impl Default for Config {
             help: false,
             version: false,
             mode: Mode::Regular,
-            filters: Vec::new(),
+            port_filters: Vec::new(),
         }
     }
 }
@@ -76,10 +78,12 @@ impl Config {
                     }
                     config.mode = Mode::VeryVerbose;
                 }
+                // Single port.
                 arg if arg.parse::<u16>().is_ok() => {
                     // 0-65535
-                    config.filters.push(String::from(arg));
+                    config.port_filters.push(String::from(arg));
                 }
+                // Range of ports (contains `-`).
                 // TODO[refactor]: Once 'if let guard' feature drops.
                 //   arg if let Some((Some(start), Some(end))) =
                 //       arg.split_once('-').and_then(|range| {
@@ -90,6 +94,9 @@ impl Config {
                 }) =>
                 {
                     // TODO: Unnecessary once previous TODO gets resolved.
+                    //  When it gets resolved, we'll both match
+                    //  and extract at the same time, instead of parsing
+                    //  for the match, and re-parse for the extract here.
                     let range = arg
                         .split_once('-')
                         .map(|x| (x.0.parse::<u16>().unwrap(), x.1.parse::<u16>().unwrap()))
@@ -106,7 +113,7 @@ impl Config {
                         .map(|port| port.to_string())
                         .collect();
 
-                    config.filters.extend(ports);
+                    config.port_filters.extend(ports);
                 }
                 arg => {
                     return Err(format!("Unknown argument: '{arg}'"));
@@ -170,8 +177,8 @@ fn version() {
 fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     let mut listening_ports = Lsof::listening_ports()?;
 
-    if !config.filters.is_empty() {
-        filter_ports(&mut listening_ports, &config.filters);
+    if !config.port_filters.is_empty() {
+        filter_ports(&mut listening_ports, &config.port_filters);
     }
 
     if listening_ports.is_empty() {
@@ -185,12 +192,16 @@ fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     }
 }
 
+/// Retain only ports in the `allowed` list.
 fn filter_ports(listening_ports: &mut Vec<ListeningPort>, allowed: &[String]) {
     listening_ports.retain(|x| {
-        let mut listening_on = x.name.as_str(); // '*:1337'
+        let mut listening_on = x.name.as_str(); // '1337'
+
+        // If the port is given in the form '*:1337', extract it.
         if let Some((_, port)) = listening_on.rsplit_once(':') {
             listening_on = port;
-        };
+        }
+
         allowed.contains(&listening_on.to_string())
     });
 }
@@ -358,7 +369,7 @@ mod tests {
                 help: false,
                 version: false,
                 mode: Mode::Regular,
-                filters: Vec::new(),
+                port_filters: Vec::new(),
             }
         );
     }
@@ -374,7 +385,7 @@ mod tests {
                 help: false,
                 version: false,
                 mode: Mode::Regular,
-                filters: Vec::new(),
+                port_filters: Vec::new(),
             }
         );
     }
@@ -497,7 +508,7 @@ mod tests {
         let config = Config::new(args).unwrap();
 
         assert_eq!(
-            config.filters,
+            config.port_filters,
             &[String::from("1337"), String::from("42069")]
         );
     }
@@ -532,7 +543,7 @@ mod tests {
         let config = Config::new(args).unwrap();
 
         assert_eq!(
-            config.filters,
+            config.port_filters,
             &[
                 String::from("1000"),
                 String::from("1001"),
@@ -550,7 +561,7 @@ mod tests {
         let config = Config::new(args).unwrap();
 
         assert_eq!(
-            config.filters,
+            config.port_filters,
             &[
                 String::from("1000"),
                 String::from("1001"),
@@ -573,7 +584,7 @@ mod tests {
         let config = Config::new(args).unwrap();
 
         assert_eq!(
-            config.filters,
+            config.port_filters,
             &[
                 String::from("1000"),
                 String::from("1001"),
@@ -600,7 +611,7 @@ mod tests {
         let config = Config::new(args).unwrap();
 
         assert_eq!(
-            config.filters,
+            config.port_filters,
             &[
                 String::from("8000"),
                 String::from("1000"),
@@ -618,7 +629,7 @@ mod tests {
         let args = vec![String::new(), String::from("1000-1000")].into_iter();
         let config = Config::new(args).unwrap();
 
-        assert_eq!(config.filters, &[String::from("1000"),]);
+        assert_eq!(config.port_filters, &[String::from("1000")]);
     }
 
     #[test]

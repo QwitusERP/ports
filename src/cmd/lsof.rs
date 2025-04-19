@@ -234,8 +234,8 @@ impl Lsof {
                     "TYPE" => port.type_ = value,
                     "NODE" => port.node = value,
                     "NAME" => port.name = value,
-                    _ => continue,
-                };
+                    _ => {}
+                }
             }
 
             lsof.push(port);

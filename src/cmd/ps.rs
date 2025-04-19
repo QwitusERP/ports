@@ -218,8 +218,8 @@ impl Ps {
                         let remaining = detail_line[col..].join(" ");
                         process.command = remaining;
                     }
-                    _ => continue,
-                };
+                    _ => {}
+                }
             }
 
             ps.push(process);
