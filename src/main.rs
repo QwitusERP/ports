@@ -128,7 +128,7 @@ impl Config {
 #[cfg(not(tarpaulin_include))]
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::new(env::args()).unwrap_or_else(|e| {
-        eprintln!("{e}");
+        eprintln!("fatal: {e}.");
         help();
         std::process::exit(2);
     });
