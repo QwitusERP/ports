@@ -4,6 +4,7 @@
 ![GitHub Tag](https://img.shields.io/github/v/tag/qrichert/ports?sort=semver&filter=*.*.*&label=release)
 [![tokei (loc)](https://tokei.rs/b1/github/qrichert/ports?label=loc&style=flat)](https://github.com/XAMPPRocky/tokei)
 [![crates.io](https://img.shields.io/crates/d/ports?logo=rust&logoColor=white&color=orange)](https://crates.io/crates/ports)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qrichert/ports/ci.yml?label=tests)](https://github.com/qrichert/ports/actions)
 
 _List listening ports._
 

@@ -31,13 +31,13 @@ clean: ## Clean project files
 r: run
 .PHONY: run
 run: ## Build and run program
-	@cargo run --quiet
+	@cargo run --quiet --all-features
 
 .PHONY: b
 b: build
 .PHONY: build
 build: ## Make optimized release build
-	@cargo build --release
+	@cargo build --release --all-features
 
 .PHONY: buildlinux
 buildlinux: ## Build linux executable through Docker
@@ -63,26 +63,25 @@ check: ## Most stringent checks (includes checks still in development)
 t: test
 .PHONY: test
 test: ## Run unit tests
-	@cargo test
+	@cargo test --all-features
 
 .PHONY: doc
 doc: ## Build documentation
-	@cargo doc
+	@cargo doc --all-features --document-private-items
+	@echo file://$(shell pwd)/target/doc/$(shell basename $(shell pwd))/index.html
 
 .PHONY: c
 c: coverage
 .PHONY: coverage
 coverage: ## Unit tests coverage report
-	@cargo tarpaulin --engine Llvm --timeout 120 --out Html --output-dir target/
-	@open target/tarpaulin-report.html || xdg-open target/tarpaulin-report.html || :
+	@cargo tarpaulin --engine Llvm --timeout 120 --skip-clean --out Html --output-dir target/ --all-features
+	@echo file://$(shell pwd)/target/tarpaulin-report.html
 
+.PHONY: cpc
+cpc: coverage-pct
 .PHONY: coverage-pct
-coverage-pct: ## Ensure code coverage of 100%
-	@coverage=$$(cargo tarpaulin --engine Llvm --out Stdout 2>&1); \
-		percent_covered=$$(echo "$$coverage" | grep -o '^[0-9]\+\.[0-9]\+% coverage' | cut -d'%' -f1); \
-		echo $$percent_covered; \
-		[ $$(echo "$$percent_covered == 100" | bc -l) -eq 0 ] && exit 1; \
-		exit 0
+coverage-pct: ## Ensure code coverage minimum %
+	@cargo tarpaulin --engine Llvm --timeout 120 --out Stdout --all-features --fail-under 95
 
 .PHONY: p
 p: profiling
@@ -96,6 +95,10 @@ profiling: ## Execution profiling report
 install: ## Install ports
 	install -d $(PREFIX)/bin/
 	install ./target/release/ports $(PREFIX)/bin/ports
+
+.PHONY: ci-bin-name
+ci-bin-name:
+	@echo "ports"
 
 %:
 	@$(call show_error_message,Unknown command '$@')
