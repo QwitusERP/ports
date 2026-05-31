@@ -79,31 +79,19 @@ impl Config {
                     config.mode = Mode::VeryVerbose;
                 }
                 // Single port.
-                arg if arg.parse::<u16>().is_ok() => {
+                port if port.parse::<u16>().is_ok() => {
                     // 0-65535
-                    config.port_filters.push(String::from(arg));
+                    config.port_filters.push(String::from(port));
                 }
                 // Range of ports (contains `-`).
-                // TODO[refactor]: Once 'if let guard' feature drops.
-                //   arg if let Some((Some(start), Some(end))) =
-                //       arg.split_once('-').and_then(|range| {
-                //           Some((range.0.parse::<u16>().ok(), range.1.parse::<u16>().ok()))
-                //       }) =>
-                arg if arg.split_once('-').is_some_and(|range| {
-                    range.0.parse::<u16>().is_ok() && range.1.parse::<u16>().is_ok()
-                }) =>
+                range
+                    if let Some((Some(start), Some(end))) =
+                        range.split_once('-').map(|range| {
+                            (range.0.parse::<u16>().ok(), range.1.parse::<u16>().ok())
+                        }) =>
                 {
-                    // TODO: Unnecessary once previous TODO gets resolved.
-                    //  When it gets resolved, we'll both match
-                    //  and extract at the same time, instead of parsing
-                    //  for the match, and re-parse for the extract here.
-                    let range = arg
-                        .split_once('-')
-                        .map(|x| (x.0.parse::<u16>().unwrap(), x.1.parse::<u16>().unwrap()))
-                        .unwrap();
-
-                    let range_start = std::cmp::min(range.0, range.1);
-                    let range_end = std::cmp::max(range.0, range.1);
+                    let range_start = std::cmp::min(start, end);
+                    let range_end = std::cmp::max(start, end);
 
                     // The bigger the range, the more we allocate...
                     // But it doesn't look like a bottleneck on a human
