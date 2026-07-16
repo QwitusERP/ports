@@ -64,8 +64,8 @@ $ sudo install ./ports-* /usr/local/bin/ports
 ```console
 $ git clone https://github.com/qrichert/ports.git
 $ cd ports
-$ make build
-$ sudo make install
+$ just build
+$ sudo just install
 ```
 
 #### Through Cargo
